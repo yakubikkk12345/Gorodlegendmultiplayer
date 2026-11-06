@@ -1,13 +1,7 @@
 {
-  "name": "my-multiplayer-game",
-  "version": "1.0.0",
-  "description": "My awesome multiplayer game",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
-  "dependencies": {
-    "express": "^4.19.0",
-    "socket.io": "^4.7.0"
-  }
+  "name": "gorod-legend",
+  "version": "27.0.0",
+  "private": true,
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" }
 }
