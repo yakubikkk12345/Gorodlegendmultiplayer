@@ -103,7 +103,7 @@ function handle(c, m) {
       car: typeof m.car === 'string' ? m.car.slice(0, 24) : null,
       cc: typeof m.cc === 'string' ? m.cc.slice(0, 9) : null,
       st: num(m.st, -2, 2), sp: num(m.sp, -200, 200), pi: num(m.pi, -2, 2), ro: num(m.ro, -2, 2),
-      n: m.n ? 1 : 0, b: m.b ? 1 : 0, v: m.v ? 1 : 0, hp: num(m.hp, 0, 100, 100), pv: m.pv ? 1 : 0
+      n: m.n ? 1 : 0, b: m.b ? 1 : 0, v: m.v ? 1 : 0, hp: num(m.hp, 0, 100, 100), pv: m.pv ? 1 : 0, ar: num(m.ar, -1.5, 1.5), wp: typeof m.wp === 'string' ? m.wp.replace(/[^a-z]/g, '').slice(0, 12) : '', sh: m.sh ? 1 : 0
     };
     c.state = s;
     bcast(c.room, { t: 's', id: c.id, s }, c.id);
