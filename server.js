@@ -155,6 +155,11 @@ const server = http.createServer((req, res) => {
       if (fs.existsSync(p)) { res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' }); return fs.createReadStream(p).pipe(res); }
     }
   }
+  const ST = { '/manifest.json': 'application/manifest+json', '/sw.js': 'application/javascript', '/icon-192.png': 'image/png', '/icon-512.png': 'image/png' };
+  if (ST[url]) {
+    const p = path.join(__dirname, url.slice(1));
+    if (fs.existsSync(p)) { res.writeHead(200, { 'Content-Type': ST[url], 'Cache-Control': 'no-cache' }); return fs.createReadStream(p).pipe(res); }
+  }
   res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8', 'Access-Control-Allow-Origin': '*' });
   let n = 0; for (const r of rooms.values()) n += r.players.size;
   res.end('Город легенд: сервер работает. Комнат: ' + rooms.size + ', игроков: ' + n + '\n');
