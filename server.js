@@ -103,10 +103,22 @@ function handle(c, m) {
       car: typeof m.car === 'string' ? m.car.slice(0, 24) : null,
       cc: typeof m.cc === 'string' ? m.cc.slice(0, 9) : null,
       st: num(m.st, -2, 2), sp: num(m.sp, -200, 200), pi: num(m.pi, -2, 2), ro: num(m.ro, -2, 2),
-      n: m.n ? 1 : 0, b: m.b ? 1 : 0, v: m.v ? 1 : 0
+      n: m.n ? 1 : 0, b: m.b ? 1 : 0, v: m.v ? 1 : 0, hp: num(m.hp, 0, 100, 100), pv: m.pv ? 1 : 0
     };
     c.state = s;
     bcast(c.room, { t: 's', id: c.id, s }, c.id);
+  } else if (m.t === 'hit') {
+    if (now - c.hitW > 1000) { c.hitW = now; c.hitN = 0; }
+    if (++c.hitN > 60) return;
+    const tg = c.room.players.get(+m.id); if (!tg || tg === c || tg.dead) return;
+    const dmg = num(m.dmg, 0, 45); if (dmg <= 0) return;
+    if (!c.state || !tg.state || !c.state.pv || !tg.state.pv) return;
+    if (Math.hypot(c.state.x - tg.state.x, c.state.z - tg.state.z) > 260) return;
+    send(tg, { t: 'hurt', from: c.id, dmg });
+  } else if (m.t === 'died') {
+    if (now - c.lastDied < 3000) return; c.lastDied = now;
+    const k = c.room.players.get(+m.by), kk = k && k !== c && !k.dead ? k : null;
+    bcast(c.room, { t: 'kill', victim: c.id, vname: c.name, killer: kk ? kk.id : 0, kname: kk ? kk.name : '' });
   } else if (m.t === 'chat') {
     if (now - c.lastChat < 600) return;
     c.lastChat = now;
@@ -170,7 +182,7 @@ server.on('upgrade', (req, socket) => {
   const accept = crypto.createHash('sha1').update(key + GUID).digest('base64');
   socket.write('HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ' + accept + '\r\n\r\n');
   socket.setNoDelay(true);
-  const c = { socket, buf: Buffer.alloc(0), room: null, id: 0, name: '', alive: true, dead: false, lastS: 0, lastChat: 0, state: null };
+  const c = { socket, buf: Buffer.alloc(0), room: null, id: 0, name: '', alive: true, dead: false, lastS: 0, lastChat: 0, state: null, hitW: 0, hitN: 0, lastDied: 0 };
   socket.on('data', d => { try { onData(c, d); } catch (e) { leave(c); } });
   socket.on('end', () => leave(c));
   socket.on('close', () => leave(c));
